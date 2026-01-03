@@ -59,7 +59,8 @@ def upsert_daily_bars(symbol: str, rows: list[dict]) -> int:
 
         inserted = 0
         for batch in chunked(payload, 3000):
-            session.execute(insert(DailyBar).values(batch))
+            insert_stmt = insert(DailyBar).values(batch).on_conflict_do_nothing(index_elements=['symbol', 'date'])
+            session.execute(insert_stmt)
             inserted += len(batch)
 
         session.commit()
